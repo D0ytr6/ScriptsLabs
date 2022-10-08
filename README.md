@@ -1,1 +1,1 @@
-# NodeJs_Lab1
+# Labs
