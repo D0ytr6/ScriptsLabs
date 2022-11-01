@@ -20,9 +20,6 @@ app.use(function(request, response, next){
 app.use("/", async function (request, response, next) {
     const result = await client.makeRequest();
     response.send(result.data);
-    // client.makeRequest().then(result => {
-    //     response.send(result.data);
-    // })
   });
   
 module.exports = app;
