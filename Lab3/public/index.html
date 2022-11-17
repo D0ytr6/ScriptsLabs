@@ -12,12 +12,17 @@
         <input type="hidden" name="id" value="0" />
 
         <div class="form-group">
-            <label for="name">Имя:</label>
+            <label for="name">Назва гри:</label>
             <input class="form-control" name="name" />
         </div>
         <div class="form-group">
             <label for="date">Дата релізу:</label>
             <input class="form-control" name="date" />
+        </div>
+
+        <div class="form-group">
+            <label for="developer">Розробник:</label>
+            <input class="form-control" name="developer" />
         </div>
 
         <div class="panel-body">
@@ -28,7 +33,7 @@
     </form>
 
     <table class="table table-condensed table-striped table-bordered">
-        <thead><tr><th>Id</th><th>Имя</th><th>возраст</th><th></th></tr></thead>
+        <thead><tr><th>Id</th><th>назва гри</th><th>дата релізу</th><th>розробник</th><th></th></tr></thead>
         <tbody>
         </tbody>
     </table>
@@ -44,11 +49,11 @@
             // если запрос прошел нормально
             if (response.ok === true) {
                 // получаем данные
-                const users = await response.json();
+                const games = await response.json();
                 let rows = document.querySelector("tbody"); 
-                users.forEach(user => {
+                games.forEach(game => {
                     // добавляем полученные элементы в таблицу
-                    rows.append(row(user));
+                    rows.append(row(game));
                 });
             }
         }
@@ -59,21 +64,22 @@
                 headers: { "Accept": "application/json" }
             });
             if (response.ok === true) {
-                const user = await response.json();
+                const game = await response.json();
                 const form = document.forms["userForm"];
-                form.elements["id"].value = user._id;
-                form.elements["name"].value = user.name;
-                form.elements["age"].value = user.date;
+                form.elements["id"].value = game._id;
+                form.elements["name"].value = game.name;
+                form.elements["date"].value = game.date;
             }
         }
         // Добавление пользователя
-        async function CreateUser(GameName, GameDate) {
+        async function CreateUser(GameName, GameDate, GameDev) {
   
             const response = await fetch("api/users", {
                 method: "POST",
                 headers: { "Accept": "application/json", "Content-Type": "application/json" },
                 body: JSON.stringify({
                     name: GameName,
+                    dev: GameDev,
                     date: parseInt(GameDate, 10)
                 })
             });
@@ -84,20 +90,21 @@
             }
         }
         // Изменение пользователя
-        async function EditUser(gameId, gameName, gameDate) {
+        async function EditUser(gameId, gameName, gameDate, gameDev) {
             const response = await fetch("api/users", {
                 method: "PUT",
                 headers: { "Accept": "application/json", "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    id: userId,
-                    name: userName,
-                    age: parseInt(userAge, 10)
+                    id: gameId,
+                    name: gameName,
+                    dev: gameDev,
+                    date: parseInt(gameDate, 10)
                 })
             });
             if (response.ok === true) {
-                const user = await response.json();
+                const game = await response.json();
                 reset();
-                document.querySelector("tr[data-rowid='" + user._id + "']").replaceWith(row(user));
+                document.querySelector("tr[data-rowid='" + game._id + "']").replaceWith(row(game));
             }
         }
         // Удаление пользователя
@@ -107,8 +114,8 @@
                 headers: { "Accept": "application/json" }
             });
             if (response.ok === true) {
-                const user = await response.json();
-                document.querySelector("tr[data-rowid='" + user._id + "']").remove();
+                const game = await response.json();
+                document.querySelector("tr[data-rowid='" + game._id + "']").remove();
             }
         }
   
@@ -119,45 +126,49 @@
             form.elements["id"].value = 0;
         }
         // создание строки для таблицы
-        function row(user) {
+        function row(game) {
   
             const tr = document.createElement("tr");
-            tr.setAttribute("data-rowid", user._id);
+            tr.setAttribute("data-rowid", game._id);
   
             const idTd = document.createElement("td");
-            idTd.append(user._id);
+            idTd.append(game._id);
             tr.append(idTd);
   
             const nameTd = document.createElement("td");
-            nameTd.append(user.name);
+            nameTd.append(game.name);
             tr.append(nameTd);
   
-            const ageTd = document.createElement("td");
-            ageTd.append(user.age);
-            tr.append(ageTd);
-              
+            const dateTd = document.createElement("td");
+            dateTd.append(game.date);
+            tr.append(dateTd);
+
+            const devTd = document.createElement("td");
+            dateTd.append(game.dev);
+            tr.append(dateTd);
+
             const linksTd = document.createElement("td");
             const editLink = document.createElement("a");
 
-            editLink.setAttribute("data-id", user._id);
+            editLink.setAttribute("data-id", game._id);
             editLink.setAttribute("style", "cursor:pointer;padding:15px;");
             editLink.append("Изменить");
             editLink.addEventListener("click", e => {
   
                 e.preventDefault();
-                GetUser(user._id);
+                GetUser(game._id);
             });
 
             linksTd.append(editLink);
   
             const removeLink = document.createElement("a");
-            removeLink.setAttribute("data-id", user._id);
+            removeLink.setAttribute("data-id", game._id);
             removeLink.setAttribute("style", "cursor:pointer;padding:15px;");
             removeLink.append("Удалить");
             removeLink.addEventListener("click", e => {
   
                 e.preventDefault();
-                DeleteUser(user._id);
+                DeleteUser(game._id);
             });
   
             linksTd.append(removeLink);
@@ -179,10 +190,11 @@
             const id = form.elements["id"].value;
             const name = form.elements["name"].value;
             const date = form.elements["date"].value;
+            const dev = form.elements["developer"].value
             if (id == 0)
-                CreateUser(name, date);
+                CreateUser(name, date, dev);
             else
-                EditUser(id, name, date);
+                EditUser(id, name, date, dev);
         });
   
         // загрузка пользователей

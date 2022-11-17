@@ -47,10 +47,10 @@ app.post("/api/users", jsonParser, function (req, res) {
        
     const GameName = req.body.name;
     const ReleaseDate = req.body.date;
-    const game = {name: GameName, age: ReleaseDate};
+    const game = {name: GameName, date: ReleaseDate};
     
     const collection = req.app.locals.collection;
-    collection.insertOne(geme, function(err, result){
+    collection.insertOne(game, function(err, result){
                
         if(err) return console.log(err);
         res.send(game);
@@ -64,8 +64,8 @@ app.delete("/api/users/:id", function(req, res){
     collection.findOneAndDelete({_id: id}, function(err, result){
                
         if(err) return console.log(err);    
-        let user = result.value;
-        res.send(user);
+        let game = result.value;
+        res.send(game);
     });
 });
    
@@ -81,8 +81,8 @@ app.put("/api/users", jsonParser, function(req, res){
          {returnOriginal: false },function(err, result){
                
         if(err) return console.log(err);     
-        const user = result.value;
-        res.send(user);
+        const game = result.value;
+        res.send(game);
     });
 });
  
