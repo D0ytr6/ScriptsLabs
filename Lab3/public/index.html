@@ -3,11 +3,11 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>Список пользователей</title>
+    <title>Список ігор</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
 </head>
 <body>
-    <h2>Список пользователей</h2>
+    <h2>Список ігор</h2>
     <form name="userForm">
         <input type="hidden" name="id" value="0" />
 
@@ -40,9 +40,9 @@
    
     <script>
     // Получение всех пользователей
-        async function GetUsers() {
+        async function GetGames() {
             // отправляет запрос и получаем ответ
-            const response = await fetch("/api/users", {
+            const response = await fetch("/api/games", {
                 method: "GET",
                 headers: { "Accept": "application/json" }
             });
@@ -58,8 +58,8 @@
             }
         }
         // Получение одного пользователя
-        async function GetUser(id) {
-            const response = await fetch("/api/users/" + id, {
+        async function GetGame(id) {
+            const response = await fetch("/api/games/" + id, {
                 method: "GET",
                 headers: { "Accept": "application/json" }
             });
@@ -68,13 +68,14 @@
                 const form = document.forms["userForm"];
                 form.elements["id"].value = game._id;
                 form.elements["name"].value = game.name;
+                form.elements["developer"].value = game.dev;
                 form.elements["date"].value = game.date;
             }
         }
         // Добавление пользователя
-        async function CreateUser(GameName, GameDate, GameDev) {
+        async function CreateGame(GameName, GameDate, GameDev) {
   
-            const response = await fetch("api/users", {
+            const response = await fetch("api/games", {
                 method: "POST",
                 headers: { "Accept": "application/json", "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -90,8 +91,8 @@
             }
         }
         // Изменение пользователя
-        async function EditUser(gameId, gameName, gameDate, gameDev) {
-            const response = await fetch("api/users", {
+        async function EditGame(gameId, gameName, gameDate, gameDev) {
+            const response = await fetch("api/games", {
                 method: "PUT",
                 headers: { "Accept": "application/json", "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -108,8 +109,8 @@
             }
         }
         // Удаление пользователя
-        async function DeleteUser(id) {
-            const response = await fetch("/api/users/" + id, {
+        async function DeleteGame(id) {
+            const response = await fetch("/api/games/" + id, {
                 method: "DELETE",
                 headers: { "Accept": "application/json" }
             });
@@ -144,8 +145,8 @@
             tr.append(dateTd);
 
             const devTd = document.createElement("td");
-            dateTd.append(game.dev);
-            tr.append(dateTd);
+            devTd.append(game.dev);
+            tr.append(devTd);
 
             const linksTd = document.createElement("td");
             const editLink = document.createElement("a");
@@ -156,7 +157,7 @@
             editLink.addEventListener("click", e => {
   
                 e.preventDefault();
-                GetUser(game._id);
+                GetGame(game._id);
             });
 
             linksTd.append(editLink);
@@ -168,7 +169,7 @@
             removeLink.addEventListener("click", e => {
   
                 e.preventDefault();
-                DeleteUser(game._id);
+                DeleteGame(game._id);
             });
   
             linksTd.append(removeLink);
@@ -190,15 +191,14 @@
             const id = form.elements["id"].value;
             const name = form.elements["name"].value;
             const date = form.elements["date"].value;
-            const dev = form.elements["developer"].value
+            const dev = form.elements["developer"].value;
             if (id == 0)
-                CreateUser(name, date, dev);
+                CreateGame(name, date, dev);
             else
-                EditUser(id, name, date, dev);
+                EditGame(id, name, date, dev);
         });
   
-        // загрузка пользователей
-        GetUsers();
+        GetGames();
     </script>
 </body>
 </html>

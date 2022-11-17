@@ -20,34 +20,35 @@ mongoClient.connect(function(err, client){
     });
 });
  
-app.get("/api/users", function(req, res){
+app.get("/api/games", function(req, res){
         
     const collection = req.app.locals.collection;
-    collection.find({}).toArray(function(err, users){
+    collection.find({}).toArray(function(err, games){
          
         if(err) return console.log(err);
-        res.send(users)
+        res.send(games)
     });
      
 });
-app.get("/api/users/:id", function(req, res){
+app.get("/api/games/:id", function(req, res){
         
     const id = new objectId(req.params.id);
     const collection = req.app.locals.collection;
-    collection.findOne({_id: id}, function(err, user){
+    collection.findOne({_id: id}, function(err, game){
                
         if(err) return console.log(err);
-        res.send(user);
+        res.send(game);
     });
 });
    
-app.post("/api/users", jsonParser, function (req, res) {
+app.post("/api/games", jsonParser, function (req, res) {
        
     if(!req.body) return res.sendStatus(400);
        
     const GameName = req.body.name;
     const ReleaseDate = req.body.date;
-    const game = {name: GameName, date: ReleaseDate};
+    const Developer = req.body.dev;
+    const game = {name: GameName, dev:Developer, date: ReleaseDate};
     
     const collection = req.app.locals.collection;
     collection.insertOne(game, function(err, result){
@@ -57,7 +58,7 @@ app.post("/api/users", jsonParser, function (req, res) {
     });
 });
     
-app.delete("/api/users/:id", function(req, res){
+app.delete("/api/games/:id", function(req, res){
         
     const id = new objectId(req.params.id);
     const collection = req.app.locals.collection;
@@ -69,15 +70,16 @@ app.delete("/api/users/:id", function(req, res){
     });
 });
    
-app.put("/api/users", jsonParser, function(req, res){
+app.put("/api/games", jsonParser, function(req, res){
         
     if(!req.body) return res.sendStatus(400);
     const id = new objectId(req.body.id);
     const GameName = req.body.name;
     const ReleaseDate = req.body.date;
-       
+    const Developer = req.body.dev;
+
     const collection = req.app.locals.collection;
-    collection.findOneAndUpdate({_id: id}, { $set: {date: ReleaseDate, name: GameName}},
+    collection.findOneAndUpdate({_id: id}, { $set: {date: ReleaseDate, name: GameName, dev: Developer}},
          {returnOriginal: false },function(err, result){
                
         if(err) return console.log(err);     
