@@ -14,7 +14,7 @@ app.use(express.static(__dirname + "/public"));
 mongoClient.connect(function(err, client){
     if(err) return console.log(err);
     dbClient = client;
-    app.locals.collection = client.db("usersdb").collection("users");
+    app.locals.collection = client.db("gamesdb").collection("games");
     app.listen(3000, function(){
         console.log("Сервер ожидает подключения...");
     });
@@ -45,15 +45,15 @@ app.post("/api/users", jsonParser, function (req, res) {
        
     if(!req.body) return res.sendStatus(400);
        
-    const userName = req.body.name;
-    const userAge = req.body.age;
-    const user = {name: userName, age: userAge};
-       
+    const GameName = req.body.name;
+    const ReleaseDate = req.body.date;
+    const game = {name: GameName, age: ReleaseDate};
+    
     const collection = req.app.locals.collection;
-    collection.insertOne(user, function(err, result){
+    collection.insertOne(geme, function(err, result){
                
         if(err) return console.log(err);
-        res.send(user);
+        res.send(game);
     });
 });
     
@@ -73,11 +73,11 @@ app.put("/api/users", jsonParser, function(req, res){
         
     if(!req.body) return res.sendStatus(400);
     const id = new objectId(req.body.id);
-    const userName = req.body.name;
-    const userAge = req.body.age;
+    const GameName = req.body.name;
+    const ReleaseDate = req.body.date;
        
     const collection = req.app.locals.collection;
-    collection.findOneAndUpdate({_id: id}, { $set: {age: userAge, name: userName}},
+    collection.findOneAndUpdate({_id: id}, { $set: {date: ReleaseDate, name: GameName}},
          {returnOriginal: false },function(err, result){
                
         if(err) return console.log(err);     
