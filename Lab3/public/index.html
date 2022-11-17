@@ -81,7 +81,7 @@
                 body: JSON.stringify({
                     name: GameName,
                     dev: GameDev,
-                    date: parseInt(GameDate, 10)
+                    date: GameDate,
                 })
             });
             if (response.ok === true) {
@@ -99,7 +99,7 @@
                     id: gameId,
                     name: gameName,
                     dev: gameDev,
-                    date: parseInt(gameDate, 10)
+                    date: gameDate,
                 })
             });
             if (response.ok === true) {
