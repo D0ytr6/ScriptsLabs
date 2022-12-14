@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Список ігор</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <h2>Список ігор</h2>
+    <form name="userForm">
+        <input type="hidden" name="id" value="0" />
+
+        <div class="form-group">
+            <label for="name">Назва гри:</label>
+            <input class="form-control" name="name" />
+        </div>
+        <div class="form-group">
+            <label for="date">Дата релізу:</label>
+            <input class="form-control" name="date" />
+        </div>
+
+        <div class="form-group">
+            <label for="developer">Розробник:</label>
+            <input class="form-control" name="developer" />
+        </div>
+
+        <div class="panel-body">
+            <button type="submit" class="btn btn-sm btn-primary">Сохранить</button>
+            <a id="reset" class="btn btn-sm btn-primary">Сбросить</a>
+        </div>
+
+    </form>
+
+    <table class="table table-condensed table-striped table-bordered">
+        <thead><tr><th>Id</th><th>назва гри</th><th>дата релізу</th><th>розробник</th><th></th></tr></thead>
+        <tbody>
+        </tbody>
+    </table>
+   
+    <script>
+    // Получение всех пользователей
+        async function GetGames() {
+            // отправляет запрос и получаем ответ
+            const response = await fetch("/api/games", {
+                method: "GET",
+                headers: { "Accept": "application/json" }
+            });
+            // если запрос прошел нормально
+            if (response.ok === true) {
+                // получаем данные
+                const games = await response.json();
+                let rows = document.querySelector("tbody"); 
+                games.forEach(game => {
+                    // добавляем полученные элементы в таблицу
+                    rows.append(row(game));
+                });
+            }
+        }
+        // Получение одного пользователя
+        async function GetGame(id) {
+            const response = await fetch("/api/games/" + id, {
+                method: "GET",
+                headers: { "Accept": "application/json" }
+            });
+            if (response.ok === true) {
+                const game = await response.json();
+                const form = document.forms["userForm"];
+                form.elements["id"].value = game._id;
+                form.elements["name"].value = game.name;
+                form.elements["developer"].value = game.dev;
+                form.elements["date"].value = game.date;
+            }
+        }
+        // Добавление пользователя
+        async function CreateGame(GameName, GameDate, GameDev) {
+  
+            const response = await fetch("api/games", {
+                method: "POST",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: GameName,
+                    dev: GameDev,
+                    date: GameDate,
+                })
+            });
+            if (response.ok === true) {
+                const game = await response.json();
+                reset();
+                document.querySelector("tbody").append(row(game));
+            }
+        }
+        // Изменение пользователя
+        async function EditGame(gameId, gameName, gameDate, gameDev) {
+            const response = await fetch("api/games", {
+                method: "PUT",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    id: gameId,
+                    name: gameName,
+                    dev: gameDev,
+                    date: gameDate,
+                })
+            });
+            if (response.ok === true) {
+                const game = await response.json();
+                reset();
+                document.querySelector("tr[data-rowid='" + game._id + "']").replaceWith(row(game));
+            }
+        }
+        // Удаление пользователя
+        async function DeleteGame(id) {
+            const response = await fetch("/api/games/" + id, {
+                method: "DELETE",
+                headers: { "Accept": "application/json" }
+            });
+            if (response.ok === true) {
+                const game = await response.json();
+                document.querySelector("tr[data-rowid='" + game._id + "']").remove();
+            }
+        }
+  
+        // сброс формы
+        function reset() {
+            const form = document.forms["userForm"];
+            form.reset();
+            form.elements["id"].value = 0;
+        }
+        // создание строки для таблицы
+        function row(game) {
+  
+            const tr = document.createElement("tr");
+            tr.setAttribute("data-rowid", game._id);
+  
+            const idTd = document.createElement("td");
+            idTd.append(game._id);
+            tr.append(idTd);
+  
+            const nameTd = document.createElement("td");
+            nameTd.append(game.name);
+            tr.append(nameTd);
+  
+            const dateTd = document.createElement("td");
+            dateTd.append(game.date);
+            tr.append(dateTd);
+
+            const devTd = document.createElement("td");
+            devTd.append(game.dev);
+            tr.append(devTd);
+
+            const linksTd = document.createElement("td");
+            const editLink = document.createElement("a");
+
+            editLink.setAttribute("data-id", game._id);
+            editLink.setAttribute("style", "cursor:pointer;padding:15px;");
+            editLink.append("Изменить");
+            editLink.addEventListener("click", e => {
+  
+                e.preventDefault();
+                GetGame(game._id);
+            });
+
+            linksTd.append(editLink);
+  
+            const removeLink = document.createElement("a");
+            removeLink.setAttribute("data-id", game._id);
+            removeLink.setAttribute("style", "cursor:pointer;padding:15px;");
+            removeLink.append("Удалить");
+            removeLink.addEventListener("click", e => {
+  
+                e.preventDefault();
+                DeleteGame(game._id);
+            });
+  
+            linksTd.append(removeLink);
+
+            tr.appendChild(linksTd);
+            return tr;
+        }
+        // сброс значений формы
+        document.getElementById("reset").click(function (e) {
+  
+            e.preventDefault();
+            reset();
+        })
+  
+        // отправка формы
+        document.forms["userForm"].addEventListener("submit", e => {
+            e.preventDefault();
+            const form = document.forms["userForm"];
+            const id = form.elements["id"].value;
+            const name = form.elements["name"].value;
+            const date = form.elements["date"].value;
+            const dev = form.elements["developer"].value;
+            if (id == 0)
+                CreateGame(name, date, dev);
+            else
+                EditGame(id, name, date, dev);
+        });
+  
+        GetGames();
+    </script>
+</body>
+</html>
+
